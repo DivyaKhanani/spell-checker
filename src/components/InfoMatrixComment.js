@@ -1,20 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
+import { useSpellChecker } from "../hooks/useSpellChecker";
 
 const InfoMatrixComment = ({
   onCommentChange,
   comment = "Ths is a comnent with errrors.",
 }) => {
-  const [text, setText] = useState(comment);
+  // Use shared hook
+  const {
+    text,
+    setText,
+    handleChange,
+    isSpellCheckEnabled,
+    setIsSpellCheckEnabled,
+    containerRef,
+  } = useSpellChecker({
+    initialText: comment,
+    initialEnabled: true,
+  });
 
-  const handleChange = (e) => {
-    const newValue = e.target.value;
-    setText(newValue);
+  // Handle parent component updates
+  useEffect(() => {
     if (onCommentChange) {
-      onCommentChange(newValue);
+      onCommentChange(text);
     }
-  };
-
-  const [isSpellCheckEnabled, setIsSpellCheckEnabled] = useState(true);
+  }, [text, onCommentChange]);
 
   return (
     <div className="spell-checker-container">

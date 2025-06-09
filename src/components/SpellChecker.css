@@ -1,0 +1,77 @@
+.spell-checker-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.spell-checker-header {
+  margin-bottom: 20px;
+}
+
+.spell-checker-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spell-checker-textarea-container {
+  margin-bottom: 20px;
+}
+
+.spell-checker-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.spell-checker-preview {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.spell-suggestions {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.suggestion {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.suggestion:hover {
+  background: #f5f5f5;
+}
+
+.no-suggestions {
+  color: #666;
+  padding: 8px;
+}
+
+.ignore {
+  padding: 8px;
+  cursor: pointer;
+  color: #666;
+}
+
+.ignore:hover {
+  background: #f5f5f5;
+}
+
+.misspelled {
+  text-decoration: underline;
+  text-decoration-color: red;
+  text-decoration-style: wavy;
+  cursor: pointer;
+}
