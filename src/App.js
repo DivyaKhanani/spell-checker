@@ -4,8 +4,6 @@ import InfoMatrixComment from "./components/InfoMatrixComment";
 import "./App.css";
 
 function App() {
-  const [comment, setComment] = useState("Ths is a comnent with errrors.");
-
   return (
     <div className="App">
       <h1>Spell Checkers Comparison</h1>
@@ -37,7 +35,7 @@ function App() {
           }}
         >
           <h2>Native Browser Spell Checker</h2>
-          <InfoMatrixComment onCommentChange={setComment} comment={comment} />
+          <InfoMatrixComment />
         </div>
       </div>
     </div>

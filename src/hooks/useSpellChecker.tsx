@@ -7,12 +7,6 @@ interface SpellCheckerState {
   handleChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   isSpellCheckEnabled: boolean;
   setIsSpellCheckEnabled: (enabled: boolean) => void;
-  contextMenu: null | { word: string; x: number; y: number };
-  setContextMenu: React.Dispatch<
-    React.SetStateAction<null | { word: string; x: number; y: number }>
-  >;
-  containerRef: React.RefObject<HTMLElement | null>;
-  handleRightClick: (word: string, e: React.MouseEvent) => void;
 }
 
 interface CustomSpellCheckerProps {
@@ -23,7 +17,6 @@ interface CustomSpellCheckerProps {
   setContextMenu: React.Dispatch<
     React.SetStateAction<null | { word: string; x: number; y: number }>
   >;
-  handleRightClick: (word: string, e: React.MouseEvent) => void;
   isSpellCheckEnabled: boolean;
 }
 
@@ -50,46 +43,13 @@ export const useSpellChecker = ({
   | "handleChange"
   | "isSpellCheckEnabled"
   | "setIsSpellCheckEnabled"
-  | "contextMenu"
-  | "setContextMenu"
-  | "handleRightClick"
 > => {
   const [text, setText] = useState(initialText);
   const [isSpellCheckEnabled, setIsSpellCheckEnabled] =
     useState(initialEnabled);
-  const [contextMenu, setContextMenu] = useState<null | {
-    word: string;
-    x: number;
-    y: number;
-  }>(null);
-  const containerRef = useRef<HTMLElement>(null);
-
-  // Handle click outside context menu
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        contextMenu &&
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setContextMenu(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [contextMenu]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
-  };
-
-  const handleRightClick = (word: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!word.trim()) return;
-    setContextMenu({ word, x: e.clientX, y: e.clientY });
   };
 
   return {
@@ -98,20 +58,35 @@ export const useSpellChecker = ({
     handleChange,
     isSpellCheckEnabled,
     setIsSpellCheckEnabled,
-    contextMenu,
-    setContextMenu,
-    handleRightClick,
   };
 };
 
 export const useCustomSpellChecker = ({
   text,
   setText,
-  contextMenu,
-  setContextMenu,
-  handleRightClick,
   isSpellCheckEnabled,
 }: CustomSpellCheckerProps) => {
+  const [contextMenu, setContextMenu] = useState<null | {
+    word: string;
+    x: number;
+    y: number;
+  }>(null);
+
+  const handleRightClick = (word: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!word.trim()) return;
+    const cleanWord = word.replace(/[^\\w']/g, "").toLowerCase(); // Clean the word
+    if (!typo || ignoredWords.includes(cleanWord)) return; // Don't show if word is ignored
+
+    // Check if word is misspelled
+    if (!typo.check(cleanWord)) {
+      setContextMenu({ word, x: e.clientX, y: e.clientY });
+      // Load suggestions immediately
+      const sugg = typo.suggest(cleanWord);
+      setSuggestions(sugg);
+    }
+  };
+
   const [misspelled, setMisspelled] = useState<string[]>([]);
   const [ignoredWords, setIgnoredWords] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -146,6 +121,22 @@ export const useCustomSpellChecker = ({
       setSuggestions(sugg);
     }
   }, [contextMenu, typo]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (contextMenu) {
+        const menuElement = document.querySelector(".spell-suggestions");
+        if (menuElement && !menuElement.contains(event.target as Node)) {
+          setContextMenu(null);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [contextMenu]);
 
   const spellCheckEffect = () => {
     if (!typo || !isSpellCheckEnabled || !text) {
@@ -210,10 +201,13 @@ export const useCustomSpellChecker = ({
             <span
               key={index}
               className={isMisspelled ? "misspelled" : ""}
-              onClick={(e) => handleRightClick(word, e)}
               title={isMisspelled ? "Click to see suggestions" : ""}
             >
-              {word}
+              {isMisspelled ? (
+                <span onClick={(e) => handleRightClick(word, e)}>{word}</span>
+              ) : (
+                word
+              )}
             </span>
           );
         })}
@@ -229,5 +223,7 @@ export const useCustomSpellChecker = ({
     applySuggestion,
     ignoreWord,
     highlightText,
+    contextMenu,
+    setContextMenu,
   };
 };

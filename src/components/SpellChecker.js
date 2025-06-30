@@ -6,28 +6,24 @@ import {
 } from "../hooks/useSpellChecker";
 
 export default function SpellChecker() {
+  const { text, setText, isSpellCheckEnabled, setIsSpellCheckEnabled } =
+    useSpellChecker({
+      initialText: "Ths is a comnent with errrors.",
+      initialEnabled: true,
+    });
+
   const {
+    applySuggestion,
+    ignoreWord,
+    highlightText,
+    suggestions,
+    contextMenu,
+    setContextMenu,
+  } = useCustomSpellChecker({
     text,
     setText,
     isSpellCheckEnabled,
-    setIsSpellCheckEnabled,
-    contextMenu,
-    setContextMenu,
-    handleRightClick,
-  } = useSpellChecker({
-    initialText: "Ths is a comnent with errrors.",
-    initialEnabled: true,
   });
-
-  const { applySuggestion, ignoreWord, highlightText, suggestions } =
-    useCustomSpellChecker({
-      text,
-      setText,
-      contextMenu,
-      setContextMenu,
-      handleRightClick,
-      isSpellCheckEnabled,
-    });
 
   return (
     <div className="spell-checker-container">
