@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-const SpellCheckerPreview = ({ text, isSpellCheckEnabled, onTextChange, previewRef }) => {
+const SpellCheckerPreview = ({ text, isSpellCheckEnabled, onTextChange }) => {
+  const previewRef = useRef(null); 
   const handleInput = () => {
     if (previewRef.current) {
       const html = previewRef.current.innerHTML;
@@ -12,15 +13,15 @@ const SpellCheckerPreview = ({ text, isSpellCheckEnabled, onTextChange, previewR
   useEffect(() => {
     const previewElement = previewRef.current;
     if (previewElement) {
-      previewElement.addEventListener('input', handleInput);
+      previewElement.addEventListener("input", handleInput);
       return () => {
-        previewElement.removeEventListener('input', handleInput);
+        previewElement.removeEventListener("input", handleInput);
       };
     }
   }, []);
 
   useEffect(() => {
-    if (isSpellCheckEnabled && previewRef.current) {
+    if (previewRef.current) {
       previewRef.current.focus();
       previewRef.current.blur();
     }
@@ -36,8 +37,7 @@ const SpellCheckerPreview = ({ text, isSpellCheckEnabled, onTextChange, previewR
           contentEditable={isSpellCheckEnabled}
           dangerouslySetInnerHTML={{ __html: text.replace(/\n/g, "<br>") }}
         />
-        </div>
-
+      </div>
     </div>
   );
 };
