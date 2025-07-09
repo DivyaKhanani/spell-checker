@@ -2,51 +2,20 @@ import React, { useEffect, useRef } from "react";
 import { useSpellChecker } from "../hooks/useSpellChecker";
 
 const InfoMatrixComment = () => {
-  // Use shared hook
-  const { text, setText, handleChange, isSpellCheckEnabled, setIsSpellCheckEnabled } =
+  const { text, handleChange, isSpellCheckEnabled, setIsSpellCheckEnabled } =
     useSpellChecker({
       initialText: "Ths is a comnent with errrors.",
       initialEnabled: true,
     });
 
   const textareaRef = useRef(null);
-  const previewRef = useRef(null);
-
-  // Handle preview content changes
-  const handlePreviewChange = () => {
-    if (previewRef.current) {
-      const html = previewRef.current.innerHTML;
-      // Remove <br> tags and replace with newlines
-      const text = html.replace(/<br>/g, '\n');
-      setText(text);
-    }
-  };
 
   useEffect(() => {
-    if (isSpellCheckEnabled) {
-      // Focus and blur the textarea to trigger spell check
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-        textareaRef.current.blur();
-      }
-      // Focus and blur the preview to trigger spell check
-      if (previewRef.current) {
-        previewRef.current.focus();
-        previewRef.current.blur();
-      }
+    if (isSpellCheckEnabled && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.blur();
     }
   }, [isSpellCheckEnabled]);
-
-  // Add event listener for preview changes
-  useEffect(() => {
-    const previewElement = previewRef.current;
-    if (previewElement) {
-      previewElement.addEventListener('input', handlePreviewChange);
-      return () => {
-        previewElement.removeEventListener('input', handlePreviewChange);
-      };
-    }
-  }, []);
 
   return (
     <div className="spell-checker-container">
@@ -73,18 +42,15 @@ const InfoMatrixComment = () => {
         />
       </div>
 
-      <div className="spell-checker-preview">
-        <h4>Preview</h4>
-        <div>
-          <div
-            ref={previewRef}
-            spellCheck={isSpellCheckEnabled}
-            contentEditable={isSpellCheckEnabled}
-            dangerouslySetInnerHTML={{ __html: text.replace(/\n/g, "<br>") }}
-            onInput={handlePreviewChange}
+      <SpellCheckerPreview
+            text={text}
+            isSpellCheckEnabled={isSpellCheckEnabled}
+            onTextChange={(newText) => {
+              const updatedTexts = [...texts];
+              updatedTexts[index] = newText;
+              setTexts(updatedTexts);
+            }}
           />
-        </div>
-      </div>
     </div>
   );
 };
